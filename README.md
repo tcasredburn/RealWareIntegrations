@@ -1,7 +1,7 @@
 # RealWare Integrations
 This repository contains examples for integrating with the RealWare API, external services, and other third-party systems.
 
-## Custom External Approach Service
+## Custom External Approach Service(s)
 RealWare provides a way to use external cost, market, and income approaches via a web-based service.
 
 ### Setup
