@@ -30,7 +30,7 @@ RealWare provides a way to use external cost, market, and income approaches via 
 
 5. Test the calculation service by opening an account, selecting the "Improvements" minor, and pressing calculate market and/or income.
 ![image](https://github.com/user-attachments/assets/5b8ac816-0512-4784-bc3b-6a022d7b7f79)
-- **IMPORTANT: The ASP.NET rest service must be running for the calculations to work.**
+**❗ IMPORTANT: The ASP.NET rest service must be running for the calculations to work.**
 
 - If successful, the external market value for market will change to 99,999.
 ![image](https://github.com/user-attachments/assets/95cf5492-4eef-4920-b5e9-b91734f0d8dc)
