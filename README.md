@@ -22,7 +22,7 @@ RealWare provides a way to use external cost, market, and income approaches via 
 - For External Market Value:
   - ```http://localhost:5152/api/ExternalApproach/TestExternalMarketValue```
 
-- For External Cost Value:
+- For External Income Value:
   - ```http://localhost:5152/api/ExternalApproach/TestExternalIncomeValue```
 
 - Save changes.
