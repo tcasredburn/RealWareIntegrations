@@ -9,6 +9,8 @@ namespace RealWare.ExternalServices.Controllers
     [Route("api/[controller]")]
     public class ExternalApproachController : ControllerBase
     {
+        const int EXAMPLE_COST_VALUE = 99999;
+
         private readonly ILogger<ExternalApproachController> _logger;
 
         public ExternalApproachController(ILogger<ExternalApproachController> logger)
@@ -33,7 +35,7 @@ namespace RealWare.ExternalServices.Controllers
                         OccCode = data.Occupancies[0].OccCode,
 
                         //TODO: Update this to your custom logic to handle the value
-                        ImpAbstractValue = 88888
+                        ImpAbstractValue = EXAMPLE_COST_VALUE
                     }
                 }
             };
@@ -57,10 +59,37 @@ namespace RealWare.ExternalServices.Controllers
                         OccCode = data.Occupancies[0].OccCode,
 
                         //TODO: Update this to your custom logic to handle the value
-                        ImpAbstractValue = 99999
+                        ImpAbstractValue = EXAMPLE_COST_VALUE
                     }
                 }
             };
+            return Ok(result);
+        }
+
+        [HttpPost("[action]")]
+        public IActionResult TestExternalCostValue([FromBody] ExternalApproachProperty data)
+        {
+            var request = HttpContext.Request;
+
+            var result = new CostExternalApproachResult
+            {
+                AccountNo = data.AccountNo,
+                ImpNo = (int)data.ImpNo,
+                TotalExternalCostValue = EXAMPLE_COST_VALUE,
+                BuiltAs = new List<RWCostBuiltAsValue>()
+            };
+
+            // TODO: Update this to your custom logic to handle the value
+            foreach (var builtAs in data.BuiltAs)
+            {
+                result.BuiltAs.Add(new RWCostBuiltAsValue
+                {
+                    ImpNo = data.ImpNo,
+                    BuiltAsId = builtAs.DetailId,
+                    ExternalCostValue = EXAMPLE_COST_VALUE
+                });
+            }
+
             return Ok(result);
         }
     }
