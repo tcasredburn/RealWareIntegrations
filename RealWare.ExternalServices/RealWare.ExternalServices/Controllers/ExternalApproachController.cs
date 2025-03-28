@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using RealWare.Core.ExternalApproach.Models;
 using RealWare.Core.ExternalApproach.Models.Result;
 using RealWare.Core.ExternalApproach.Models.Request;
+using System.Text;
+using Newtonsoft.Json;
 
 namespace RealWare.ExternalServices.Controllers
 {
@@ -91,6 +93,20 @@ namespace RealWare.ExternalServices.Controllers
             }
 
             return Ok(result);
+        }
+
+        [HttpPost("[action]")]
+        public async Task<IActionResult> DebugExternalValue()
+        {
+            HttpContext.Request.EnableBuffering();
+            using var reader = new StreamReader(HttpContext.Request.Body, Encoding.UTF8, leaveOpen: true);
+            var bodyContent = await reader.ReadToEndAsync();
+            HttpContext.Request.Body.Seek(0, SeekOrigin.Begin);
+
+            var resultDataAsText = bodyContent;
+            var resultDataAsJson = JsonConvert.DeserializeObject(bodyContent);
+
+            return BadRequest("This is just meant to help debug values being sent from RealWare. This will just error in RealWare.");
         }
     }
 }
