@@ -1,7 +1,17 @@
+using Microsoft.Extensions.Options;
+using RealWare.ExternalServices.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Add settings from appsettings.json
+builder.Services.Configure<RealWareApiSettings>(
+    builder.Configuration.GetSection("RealWareApiSettings"));
 
+builder.Services.AddSingleton(sp =>
+    sp.GetRequiredService<IOptions<RealWareApiSettings>>().Value);
+
+
+// Add services to the container.
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

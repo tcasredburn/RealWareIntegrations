@@ -4,6 +4,8 @@ using RealWare.Core.ExternalApproach.Models.Result;
 using RealWare.Core.ExternalApproach.Models.Request;
 using System.Text;
 using Newtonsoft.Json;
+using RealWare.ExternalServices.Models;
+using RealWare.Core.API.Models;
 
 namespace RealWare.ExternalServices.Controllers
 {
@@ -13,10 +15,13 @@ namespace RealWare.ExternalServices.Controllers
     {
         const int EXAMPLE_COST_VALUE = 99999;
 
+        private readonly RealWareApiSettings _realWareApiSettings;
         private readonly ILogger<ExternalApproachController> _logger;
 
-        public ExternalApproachController(ILogger<ExternalApproachController> logger)
+        public ExternalApproachController(RealWareApiSettings realWareApiSettings, 
+            ILogger<ExternalApproachController> logger)
         {
+            _realWareApiSettings = realWareApiSettings;
             _logger = logger;
         }
 
@@ -93,6 +98,61 @@ namespace RealWare.ExternalServices.Controllers
             }
 
             return Ok(result);
+        }
+
+        [HttpPost("[action]")]
+        public IActionResult ExternalMooreCostValue([FromBody] ExternalApproachProperty data)
+        {
+            var request = HttpContext.Request;
+
+            if(_realWareApiSettings.UseRealWareApiInCostCalculation)
+                data = getRealWareApiData(ref data);
+
+            // TODO: Send this to Craftsman api and return the result
+
+            var testOnlyResult = new CostExternalApproachResult
+            {
+                AccountNo = data.AccountNo,
+                ImpNo = (int)data.ImpNo,
+                TotalExternalCostValue = EXAMPLE_COST_VALUE,
+                BuiltAs = new List<RWCostBuiltAsValue>()
+            };
+
+            return Ok(testOnlyResult);
+        }
+
+        private ExternalApproachProperty getRealWareApiData(ref ExternalApproachProperty data)
+        {
+            var connection = new Core.API.Connection.RealWareApiConnection(_realWareApiSettings.BaseUrl, _realWareApiSettings.ApiKey);
+
+            var api = new RealWare.Core.API.RealWareApi(connection);
+
+            var property = api.GetImprovement(data.AccountNo, (int)data.ImpNo, "2026");
+
+            // Add missing fields
+            data.AddOns = cloneList<ExternalApproachAddOn, RWImprovementAddOn>(property.AddOns);
+            data.DetachedGarages = cloneList<ExternalApproachDetachedGarage, RWImprovementDetachedGarage>(property.DetachedGarages);
+            data.Details = cloneList<ExternalApproachGeneralDetail, RWImprovementGeneralDetail>(property.GeneralDetails);
+            data.UserDetails = cloneList<ExternalApproachUserDetail, RWImprovementUserDetail>(property.UserDetails);
+
+            return data;
+        }
+
+        private List<TDest> cloneList<TDest, TSource>(List<TSource> listToClone)
+        {
+            if (listToClone == null || listToClone.Count == 0)
+                return new List<TDest>();
+
+            var settings = new JsonSerializerSettings
+            {
+                MissingMemberHandling = MissingMemberHandling.Ignore,
+                NullValueHandling = NullValueHandling.Ignore
+            };
+
+            var serialized = JsonConvert.SerializeObject(listToClone, settings);
+            var cloned = JsonConvert.DeserializeObject<List<TDest>>(serialized, settings);
+
+            return cloned ?? new List<TDest>();
         }
 
         [HttpPost("[action]")]
